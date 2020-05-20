@@ -1,0 +1,63 @@
+
+
+<!DOCTYPE html>
+<html>
+  <body>
+
+    <script>
+
+      window.onload = function () {
+        var N = 4;
+        users = [4,4,4,4,4]
+        solution(N, users)
+      };
+
+      // object stage for temp score
+      function Stages(stage, score){
+          var temp = {} ;
+          temp.stage = stage;
+          temp.score = score;
+          return temp
+      }
+
+      function solution(N, users){
+        var answer = [];
+        var answerObject = [];
+        var foo = [];
+
+        // destruction value N and push to array for stage
+        for (var i=1; i<=N; i++){
+          foo.push(i);
+        }
+
+        // core
+        for(var x=0; x<foo.length; x++){
+          this[`temp ${foo[x]}`] = [];
+          for(var b=0; b<users.length; b++){
+            if(users[b] > foo[x]){
+              this[`temp ${foo[x]}`].push(users[b]);
+            }
+          }
+          var score = this[`temp ${foo[x]}`].length/users.length;
+          var stage = Stages(foo[x], score);
+          answerObject.push(stage)
+        }
+
+        // sorting object
+        var sorting = answerObject.sort(function(a,b) {
+            return a.score - b.score;
+        });
+
+        // get first key of object and push to array
+        var entries = Object.entries(sorting);
+        for(var x=0; x<sorting.length; x++){
+          answer.push(entries[x][1].stage)
+        }
+        console.log('result: ', answer)
+      }
+
+
+      
+    </script>
+  </body>
+</html>
