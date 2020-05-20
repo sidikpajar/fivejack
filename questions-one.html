@@ -1,0 +1,160 @@
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+      #answerDisplay{
+        text-align:left;
+        padding:10px;
+        background:#fff;
+        height:400px;
+        border:2px solid #ACD8F0;
+        overflow:auto; 
+      }
+      #recordDisplay{
+        text-align:left;
+        padding:10px;
+        background:#fff;
+        height:400px;
+        border:2px solid #ACD8F0;
+        overflow:auto; 
+      }
+      #managementChat{
+        margin-top:50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-5">
+     <div class="row">
+      <div class="col-md-5" id="answerDisplay">
+        <p class="font-weight-bold"> Answer: </p>
+      </div>
+      <div class="col-md-5  offset-md-2" id="recordDisplay">
+        <p class="font-weight-bold"> Record: </p>
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-md-12" id="managementChat">
+        <input type="text" id="myText" placeholder="input your name" value="">
+        <button style="margin-bottom:10px" onclick="EnterChat()">Enter</button>
+        <p class="font-weight-bold"> Data Person: </p>
+      </div>
+     </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script>
+
+      window.onload = function () {
+        fetchDisplay()
+      };
+
+      function setChangeName(uuid){
+        var persons = JSON.parse(localStorage.getItem('chatData'));
+        var record = JSON.parse(localStorage.getItem('Record'));
+        for (var i = 0; i < persons.length; i++){
+          if(persons[i].uuid == uuid){
+            var newName = prompt("Input your name here", " ");
+            persons[i].name = newName;
+            localStorage.setItem('chatData', JSON.stringify(persons));
+            var itemRecord = `Change ${persons[i].uuid} ${newName}`;
+            record.push(itemRecord);
+            localStorage.setItem('Record', JSON.stringify(record))
+          }
+        }
+        window.location.reload(true);
+      }
+
+
+      function setLeave(uuid){
+        var persons = JSON.parse(localStorage.getItem('chatData'));
+        var record = JSON.parse(localStorage.getItem('Record'));
+        var answer = JSON.parse(localStorage.getItem('Answer'));
+        console.log(uuid)
+        for (var i = 0; i < persons.length; i++){
+          if(persons[i].uuid === uuid){
+            var itemRecord = `Leave ${persons[i].uuid}`;
+            var itemAnswer = `${persons[i].name} has leave`;
+            record.push(itemRecord);
+            answer.push(itemAnswer);
+            localStorage.setItem('Record', JSON.stringify(record));
+            localStorage.setItem('Answer', JSON.stringify(answer));
+            persons.splice(i,1);
+            localStorage.setItem('chatData', JSON.stringify(persons));
+          }
+        }
+        window.location.reload(true);
+      }
+
+      function fetchDisplay(){
+        var record = JSON.parse(localStorage.getItem('Record'));
+        var answer = JSON.parse(localStorage.getItem('Answer'));
+        document.getElementById("recordDisplay").innerHTML += record === null ? '' : JSON.stringify(record);
+        document.getElementById("answerDisplay").innerHTML += answer === null ? '' : JSON.stringify(answer);
+        var persons = JSON.parse(localStorage.getItem('chatData'));
+        var managementChat = document.getElementById("managementChat");
+        for (var i = 0; i < persons.length; i++){
+          var personName = persons[i].name;
+          var personUuid = persons[i].uuid;
+          managementChat.innerHTML += '<p>'+ personUuid +" "+ personName +" "+'<a href="#" onclick="setChangeName(\''+personUuid+'\') ">Change Name</a> '+' <a class="text-danger" href="#" onclick="setLeave(\''+personUuid+'\') ">Leave Chat</a>'+'</p>';
+        }
+      }
+
+      function objectPerson(uuid, name){
+          var person = {} ;
+          person.uuid = uuid;
+          person.name = name;
+          return person
+      }
+
+      const capitalize = (s) => {
+        if (typeof s !== 'string') return ''
+        return s.charAt(0).toUpperCase() + s.slice(1)
+      }
+
+      function EnterChat() {
+        var data = JSON.parse(localStorage.getItem('Record'));
+        console.log(data)
+        var value = document.getElementById("myText").value;
+        var name = capitalize(value);
+        var generateUUID = Math.floor((Math.random() * 1000000000) + 1);
+        var person = objectPerson(`uuid${generateUUID}`, name);
+        var itemRecord = `Enter uuid${generateUUID} ${name}`;
+        var itemAnswer = `${name} came in.`;
+        if (localStorage.getItem('Record') === null){
+            var persons = [];
+            var record = [];
+            var answer = [];
+            persons.push(person);
+            record.push(itemRecord);
+            answer.push(itemAnswer);
+            localStorage.setItem('chatData', JSON.stringify(persons))
+            localStorage.setItem('Record', JSON.stringify(record))
+            localStorage.setItem('Answer', JSON.stringify(answer))
+        } else {
+            var persons = JSON.parse(localStorage.getItem('chatData'));
+            var record = JSON.parse(localStorage.getItem('Record'));
+            var answer = JSON.parse(localStorage.getItem('Answer'));
+            persons.push(person);
+            record.push(itemRecord);
+            answer.push(itemAnswer);
+            localStorage.setItem('chatData', JSON.stringify(persons))
+            localStorage.setItem('Record', JSON.stringify(record))
+            localStorage.setItem('Answer', JSON.stringify(answer))
+        }
+        window.location.reload(true);
+      }
+      
+    </script>
+  </body>
+</html>
